@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSuperSocket.Common" Version="2.1.2.1" />
+    <PackageReference Include="CSuperSocket.Facility" Version="2.1.2.1" />
+    <PackageReference Include="CSuperSocket.SocketBase" Version="2.1.2.1" />
+    <PackageReference Include="CSuperSocket.SocketEngine" Version="2.1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libraries\sensewire.constants\sensewire.constants.csproj" />
+    <ProjectReference Include="..\..\libraries\sensewire.kafka.consumer\sensewire.kafka.consumer.csproj" />
+    <ProjectReference Include="..\..\libraries\sensewire.kafka.producer\sensewire.kafka.producer.csproj" />
+  </ItemGroup>
+
+</Project>

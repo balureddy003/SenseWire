@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  webservice:
+    image: ${DOCKER_REGISTRY}webservice
+    build:
+      context: .
+      dockerfile: storage-adapter/WebService/Dockerfile

@@ -1,0 +1,211 @@
+# This is the docker-compose script for local development.
+# For the latest version of the docker images see:
+# https://github.com/Azure/pcs-cli/blob/master/remotemonitoring/single-vm/docker-compose.dotnet.yml
+#
+# Usage:
+# - install Docker Compose, see https://docs.docker.com/compose/install
+# - open a console and `cd` into the folder that contains this file
+# - note how this file references many environment variables, either set
+#   them in the .env file or edit this file adding the values here
+# - run `docker-compose up`
+# - open the browser at http://127.0.0.1:8080
+#
+# For more information see
+# https://github.com/Azure/azure-iot-pcs-remote-monitoring-dotnet
+
+version: "3"
+
+services:
+  reverseproxy:
+    image: icuboid/sensewire/server-nginx:testing
+    ports:
+      - "8080:10080"
+    depends_on:
+      - webui
+      - auth
+      - iothubmanager
+      #- devicesimulation
+      - telemetry
+      - config
+    volumes:
+     - //C/Users/Public/Documents/Hyper-V/config/nginx.conf:/app/config/default1.conf:ro
+  webui:
+    image: azureiotpcs/pcs-remote-monitoring-webui:testing
+    depends_on:
+      - auth
+      - iothubmanager
+      #- devicesimulation
+      - telemetry
+      - config
+  # NOTE: Volumes disabled for local development, uncomment if enabling auth
+  # volumes:
+  #   - ./webui-config.js:/app/build/webui-config.js:ro
+  auth:
+    image: azureiotpcs/pcs-auth-dotnet:testing
+    environment:
+      - PCS_AUTH_ISSUER=https://sts.windows.net/12cc8594-a5f2-4ac9-81b0-0889f03797f9/
+      - PCS_AUTH_AUDIENCE=173f39ce-bc70-4e75-a0d7-de508ecd775a
+      - PCS_AUTH_REQUIRED=true
+      - PCS_CORS_WHITELIST=""
+      - PCS_APPLICATION_SECRET="Value"
+      - PCS_AAD_APPSECRET=xBvoliQSu9c3Efx4OHCZLYSfpHy8b2hfNkrcEZPYtXE=
+      - PCS_AAD_ENDPOINT_URL=https://login.microsoftonline.com/12cc8594-a5f2-4ac9-81b0-0889f03797f9/federationmetadata/2007-06/federationmetadata.xml
+      - PCS_AAD_TENANT=balachandrareddyoutlook.onmicrosoft.com
+     
+
+  iothubmanager:
+    image: azureiotpcs/iothub-manager-dotnet:testing
+    depends_on:
+      - auth
+      - storageadapter
+    environment:
+      - PCS_IOTHUB_CONNSTRING="Value"
+      - PCS_STORAGEADAPTER_WEBSERVICE_URL=http://storageadapter:9022/v1
+      - PCS_AUTH_WEBSERVICE_URL=http://auth:9001/v1
+      - PCS_AUTH_ISSUER="Value"
+      - PCS_AUTH_AUDIENCE="Value"
+      - PCS_AUTH_REQUIRED=false
+      - PCS_CORS_WHITELIST=""
+      - PCS_APPLICATION_SECRET="Value"
+      - KAFKA_CONNSTRING=kafka:9092
+      
+
+
+  telemetry:
+    image: azureiotpcs/telemetry-dotnet:testing
+    depends_on:
+      - auth
+      - storageadapter
+    environment:
+      - PCS_TELEMETRY_DOCUMENTDB_CONNSTRING=mongodb://127.0.0.1:27017
+      - PCS_STORAGEADAPTER_WEBSERVICE_URL=http://storageadapter:9022/v1
+      - PCS_AUTH_WEBSERVICE_URL=http://auth:9001/v1
+      - PCS_AUTH_ISSUER="Value"
+      - PCS_AUTH_AUDIENCE="Value"
+      - PCS_AUTH_REQUIRED=false
+      - PCS_CORS_WHITELIST=""
+      - PCS_APPLICATION_SECRET="Value"
+      - PCS_TELEMETRY_STORAGE_TYPE="Value"
+      - PCS_TSI_FQDN="Value"
+      - PCS_AAD_APPID="Value"
+      - PCS_AAD_TENANT="Value"
+      - PCS_AAD_APPSECRET="Value"
+      - PCS_ACTION_EVENTHUB_CONNSTRING="Value"
+      - PCS_DIAGNOSTICS_WEBSERVICE_URL="Value"
+      - PCS_ACTION_EVENTHUB_NAME="Value"
+      - PCS_LOGICAPP_ENDPOINT_URL="Value"
+      - PCS_ARM_ENDPOINT_URL="Value"
+      - PCS_AZUREBLOB_CONNSTRING="Value"
+      - PCS_SOLUTION_WEBSITE_URL="Value"
+      
+
+  config:
+    image:  azureiotpcs/pcs-config-dotnet:testing
+    depends_on:
+      - auth
+      - storageadapter
+      #- devicesimulation
+      - telemetry
+    environment:
+      - PCS_STORAGEADAPTER_WEBSERVICE_URL=http://storageadapter:9022/v1
+      - PCS_DEVICESIMULATION_WEBSERVICE_URL=http://devicesimulation:9003/v1
+      - PCS_TELEMETRY_WEBSERVICE_URL=http://telemetry:9004/v1
+      - PCS_AZUREMAPS_KEY="Value"
+      - PCS_AUTH_WEBSERVICE_URL=http://auth:9001/v1
+      - PCS_AUTH_ISSUER="Value"
+      - PCS_AUTH_AUDIENCE="Value"
+      - PCS_AUTH_REQUIRED=false
+      - PCS_CORS_WHITELIST=""
+      - PCS_APPLICATION_SECRET="Value"
+      - PCS_OFFICE365_CONNECTION_URL="Value"
+      - PCS_SOLUTION_TYPE="Value"
+      - PCS_SEED_TEMPLATE="Value"
+      - PCS_SOLUTION_NAME="Value"
+      - PCS_SUBSCRIPTION_ID="Value"
+      - PCS_ARM_ENDPOINT_URL="Value"
+      
+
+
+  storageadapter:
+    image: azureiotpcs/pcs-storage-adapter-dotnet:testing
+    depends_on:
+      - mongodb
+    environment:
+      - PCS_STORAGEADAPTER_DOCUMENTDB_CONNSTRING=mongodb://mongodb:27017
+      - PCS_AUTH_ISSUER="Value"
+      - PCS_AUTH_AUDIENCE="Value"
+      - PCS_AUTH_REQUIRED="Value"
+      - PCS_CORS_WHITELIST=""
+      - PCS_APPLICATION_SECRET="Value"
+      - PCS_STORAGEADAPTER_MONGODB_CONNSTRING=mongodb://mongodb:27017
+      - PCS_AUTH_REQUIRED=false
+
+  #asamanager:
+   # image: azureiotpcs/asa-manager-dotnet:testing
+    #depends_on:
+     # - telemetry
+      #- iothubmanager
+      #- config
+    #environment:
+     # - PCS_TELEMETRY_DOCUMENTDB_CONNSTRING
+      #- PCS_TELEMETRY_WEBSERVICE_URL=http://telemetry:9004/v1
+      #- PCS_CONFIG_WEBSERVICE_URL=http://config:9005/v1
+      #- PCS_IOTHUBMANAGER_WEBSERVICE_URL=http://iothubmanager:9002/v1
+      #- PCS_ASA_DATA_AZUREBLOB_ACCOUNT
+      #- PCS_ASA_DATA_AZUREBLOB_KEY
+      #- PCS_ASA_DATA_AZUREBLOB_ENDPOINT_SUFFIX
+      #- PCS_EVENTHUB_CONNSTRING
+      #- PCS_EVENTHUB_NAME
+      #- PCS_AUTH_REQUIRED
+      #- PCS_CORS_WHITELIST
+      #- PCS_AUTH_ISSUER
+      #- PCS_AUTH_AUDIENCE
+      #- PCS_APPLICATION_SECRET
+  mongodb:
+    image: mongo:latest
+    container_name: "mongodb"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    #volumes:
+     # - ./data/db:/data/db
+    #ports:
+     #   - 27017:27017
+    #command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+  mqttAdapter:
+    image: sensewire/protocol-adapter-mqtt:testing
+    depends_on:
+      - kafka
+    ports:
+      - "1883:1883"
+    environment:
+      - KAFKA_CONNSTRING=kafka:9092
+
+
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    expose:
+    - "2181"
+  kafka:
+    image: wurstmeister/kafka:2.11-2.0.0
+    depends_on:
+    - zookeeper
+    ports:
+    - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+
+  druid:
+    image: test/druid:1.0
+    ports:
+      - "7083:8083"
+    links:
+      - zookeeper:zookeeper
+      - kafka:kakfa
+    environment:
+      - ZOOKEEPER_HOSTNAME=zookeeper2181
+      - ZOOKEEPER_PORT=2181
