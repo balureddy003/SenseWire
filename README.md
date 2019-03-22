@@ -14,7 +14,10 @@ alt="IMAGE ALT TEXT HERE"/>
 
 Deploy a solution
 ========
-
+1. Install docker
+2. go to folder scripts\local
+3. run command docker-compose up
+4. browse application using http://localhost:8080/
 
 Common Scenarios
 ================
