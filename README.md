@@ -19,6 +19,12 @@ Deploy a solution
 3. run command docker-compose up
 4. browse application using http://localhost:8080/
 
+Data flow
+========
+<img src="https://github.com/iCuboidSenseWire/SenseWire/blob/master/docs/Slide3.JPG" 
+alt="IMAGE ALT TEXT HERE"/>
+
+
 Common Scenarios
 ================
 <img src="https://github.com/iCuboidSenseWire/SenseWire/blob/master/docs/Slide5.JPG" 
