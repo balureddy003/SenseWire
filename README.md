@@ -7,7 +7,7 @@ SENSEWIRE IOT Platform
 alt="IMAGE ALT TEXT HERE"/>
 
 
-Overview
+System Overview
 ========
 <img src="https://github.com/iCuboidSenseWire/SenseWire/blob/master/docs/Slide2.JPG" 
 alt="IMAGE ALT TEXT HERE"/>
