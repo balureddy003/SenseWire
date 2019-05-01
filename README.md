@@ -1,5 +1,3 @@
-
-
 SENSEWIRE IOT Platform
 ========
 
